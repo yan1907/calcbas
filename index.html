@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Math Bros</title>
+    <style>
+        /* Estilos generales */
+        * {
+            box-sizing: border-box;
+            font-family: 'Press Start 2P', cursive;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a2e;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=1000');
+            background-size: cover;
+        }
+        
+        @font-face {
+            font-family: 'Press Start 2P';
+            src: url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        }
+        
+        .container {
+            width: 800px;
+            height: 600px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 8px solid #ff6b6b;
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Estilos del menú */
+        .menu {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+        
+        .menu h1 {
+            color: #ff6b6b;
+            font-size: 36px;
+            margin-bottom: 40px;
+            text-shadow: 4px 4px 0px #000;
+        }
+        
+        .btn {
+            background-color: #4ecdc4;
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            margin: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 10px;
+            width: 250px;
+            text-align: center;
+            transition: all 0.3s;
+            box-shadow: 5px 5px 0px #000;
+        }
+        
+        .btn:hover {
+            background-color: #ff6b6b;
+            transform: translateY(-5px);
+            box-shadow: 8px 8px 0px #000;
+        }
+        
+        /* Estilos del juego */
+        .game-screen, .calculator-screen, .instructions-screen {
+            display: none;
+            height: 100%;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .game-header, .calculator-header, .instructions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+        }
+        
+        .game-content, .calculator-content, .instructions-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .game-footer, .calculator-footer, .instructions-footer {
+            display: flex;
+            justify-content: center;
+            padding: 10px;
+        }
+        
+        .level-display {
+            font-size: 24px;
+            color: #4ecdc4;
+        }
+        
+        .medals-display {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .medal {
+            width: 30px;
+            height: 30px;
+            background-color: gold;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            color: #000;
+        }
+        
+        .question {
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .option-btn {
+            padding: 15px;
+            font-size: 18px;
+            background-color: #4ecdc4;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .option-btn:hover {
+            background-color: #ff6b6b;
+            transform: scale(1.05);
+        }
+        
+        .feedback {
+            font-size: 20px;
+            height: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .correct {
+            color: #4ecdc4;
+        }
+        
+        .incorrect {
+            color: #ff6b6b;
+        }
+        
+        /* Estilos de la calculadora */
+        .calculator-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .calculator-tab {
+            padding: 10px 20px;
+            background-color: #333;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            margin: 0 5px;
+            border-radius: 5px 5px 0 0;
+        }
+        
+        .calculator-tab.active {
+            background-color: #4ecdc4;
+            color: #000;
+        }
+        
+        .calculator-form {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .calculator-form div {
+            margin-bottom: 15px;
+        }
+        
+        .calculator-form label {
+            display: block;
+            margin-bottom: 5px;
+            color: #4ecdc4;
+        }
+        
+        .calculator-form input, .calculator-form select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: #333;
+            color: #fff;
+        }
+        
+        .calculator-result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #333;
+            border-radius: 5px;
+            font-size: 18px;
+            text-align: center;
+        }
+        
+        /* Estilos para el nombre del jugador */
+        .player-name {
+            margin-bottom: 30px;
+        }
+        
+        .player-name input {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            text-align: center;
+            background-color: #333;
+            color: #fff;
+        }
+        
+        /* Animaciones */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .bounce {
+            animation: bounce 1s infinite;
+        }
+        
+        /* Efectos de píxeles */
+        .pixel-border {
+            border: 4px solid #fff;
+            image-rendering: pixelated;
+            box-shadow: 0 0 0 4px #000, 0 0 0 8px #fff, 0 0 0 12px #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container pixel-border">
+        <!-- Menú principal -->
+        <div class="menu" id="menu-screen">
+            <h1>RETRO MATH BROS</h1>
+            <div class="player-name">
+                <input type="text" id="player-name" placeholder="Ingresa tu nombre" maxlength="12">
+            </div>
+            <button class="btn" id="start-game-btn">INICIAR JUEGO</button>
+            <button class="btn" id="calculator-btn">CALCULADORA</button>
+            <button class="btn" id="instructions-btn">INSTRUCCIONES</button>
+        </div>
+        
+        <!-- Pantalla de juego -->
+        <div class="game-screen" id="game-screen">
+            <div class="game-header">
+                <div class="level-display">Nivel: <span id="current-level">1</span></div>
+                <div class="player-display">Jugador: <span id="current-player"></span></div>
+                <div class="medals-display">
+                    <span>Medallas:</span>
+                    <div id="medals-container"></div>
+                </div>
+            </div>
+            
+            <div class="game-content">
+                <div class="question" id="question"></div>
+                <div class="feedback" id="feedback"></div>
+                <div class="options" id="options"></div>
+            </div>
+            
+            <div class="game-footer">
+                <button class="btn" id="back-to-menu-btn">VOLVER AL MENÚ</button>
+            </div>
+        </div>
+        
+        <!-- Pantalla de calculadora -->
+        <div class="calculator-screen" id="calculator-screen">
+            <div class="calculator-header">
+                <h2>CALCULADORA DE BASES</h2>
+            </div>
+            
+            <div class="calculator-content">
+                <div class="calculator-tabs">
+                    <button class="calculator-tab active" data-tab="base10-to-other">Base 10 → Otra</button>
+                    <button class="calculator-tab" data-tab="other-to-base10">Otra → Base 10</button>
+                    <button class="calculator-tab" data-tab="any-to-any">Cualquiera → Cualquiera</button>
+                </div>
+                
+                <!-- Conversión de base 10 a otras bases -->
+                <div class="calculator-form" id="base10-to-other-form">
+                    <div>
+                        <label for="base10-number">Número en base 10:</label>
+                        <input type="text" id="base10-number" placeholder="Ej: 42">
+                    </div>
+                    <div>
+                        <label for="target-base">Base de destino:</label>
+                        <select id="target-base">
+                            <option value="2">Base 2 (Binario)</option>
+                            <option value="3">Base 3</option>
+                            <option value="4">Base 4</option>
+                            <option value="5">Base 5</option>
+                            <option value="6">Base 6</option>
+                            <option value="7">Base 7</option>
+                            <option value="8">Base 8 (Octal)</option>
+                            <option value="9">Base 9</option>
+                            <option value="16">Base 16 (Hexadecimal)</option>
+                        </select>
+                    </div>
+                    <button class="btn" id="convert-base10-btn">CONVERTIR</button>
+                    <div class="calculator-result" id="base10-result"></div>
+                </div>
+                
+                <!-- Conversión de otras bases a base 10 -->
+                <div class="calculator-form" id="other-to-base10-form" style="display: none;">
+                    <div>
+                        <label for="other-base-number">Número:</label>
+                        <input type="text" id="other-base-number" placeholder="Ej: 1010">
+                    </div>
+                    <div>
+                        <label for="original-base">Base original:</label>
+                        <select id="original-base">
+                            <option value="2">Base 2 (Binario)</option>
+                            <option value="3">Base 3</option>
+                            <option value="4">Base 4</option>
+                            <option value="5">Base 5</option>
+                            <option value="6">Base 6</option>
+                            <option value="7">Base 7</option>
+                            <option value="8">Base 8 (Octal)</option>
+                            <option value="9">Base 9</option>
+                            <option value="16">Base 16 (Hexadecimal)</option>
+                        </select>
+                    </div>
+                    <button class="btn" id="convert-to-base10-btn">CONVERTIR</button>
+                    <div class="calculator-result" id="to-base10-result"></div>
+                </div>
+                
+                <!-- Conversión entre cualquier base -->
+                <div class="calculator-form" id="any-to-any-form" style="display: none;">
+                    <div>
+                        <label for="any-base-number">Número:</label>
+                        <input type="text" id="any-base-number" placeholder="Ej: 1010">
+                    </div>
+                    <div>
+                        <label for="from-base">Base original:</label>
+                        <select id="from-base">
+                            <option value="2">Base 2 (Binario)</option>
+                            <option value="3">Base 3</option>
+                            <option value="4">Base 4</option>
+                            <option value="5">Base 5</option>
+                            <option value="6">Base 6</option>
+                            <option value="7">Base 7</option>
+                            <option value="8">Base 8 (Octal)</option>
+                            <option value="9">Base 9</option>
+                            <option value="16">Base 16 (Hexadecimal)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="to-base">Base de destino:</label>
+                        <select id="to-base">
+                            <option value="2">Base 2 (Binario)</option>
+                            <option value="3">Base 3</option>
+                            <option value="4">Base 4</option>
+                            <option value="5">Base 5</option>
+                            <option value="6">Base 6</option>
+                            <option value="7">Base 7</option>
+                            <option value="8">Base 8 (Octal)</option>
+                            <option value="9">Base 9</option>
+                            <option value="16">Base 16 (Hexadecimal)</option>
+                        </select>
+                    </div>
+                    <button class="btn" id="convert-any-btn">CONVERTIR</button>
+                    <div class="calculator-result" id="any-to-any-result"></div>
+                </div>
+            </div>
+            
+            <div class="calculator-footer">
+                <button class="btn" id="calculator-to-menu-btn">VOLVER AL MENÚ</button>
+            </div>
+        </div>
+        
+        <!-- Pantalla de instrucciones -->
+        <div class="instructions-screen" id="instructions-screen">
+            <div class="instructions-header">
+                <h2>INSTRUCCIONES</h2>
+            </div>
+            
+            <div class="instructions-content">
+                <div style="text-align: left; line-height: 1.6; max-width: 700px;">
+                    <h3 style="color: #4ecdc4;">CÓMO JUGAR</h3>
+                    <p>1. Ingresa tu nombre y haz clic en "INICIAR JUEGO".</p>
+                    <p>2. Se te presentará un número en base 10 que debes convertir a otra base.</p>
+                    <p>3. Selecciona la respuesta correcta entre las opciones.</p>
+                    <p>4. Cada respuesta correcta te acerca al siguiente nivel.</p>
+                    <p>5. Por cada 3 niveles completados, ganas una medalla.</p>
+                    
+                    <h3 style="color: #4ecdc4; margin-top: 30px;">SOBRE LAS BASES NUMÉRICAS</h3>
+                    <p>- <strong>Base 10</strong>: Sistema decimal que usamos normalmente (0-9).</p>
+                    <p>- <strong>Base 2 (Binario)</strong>: Solo usa 0 y 1.</p>
+                    <p>- <strong>Base 8 (Octal)</strong>: Usa dígitos del 0 al 7.</p>
+                    <p>- <strong>Base 16 (Hexadecimal)</strong>: Usa dígitos del 0 al 9 y letras A-F.</p>
+                    <p>- Otras bases usan dígitos del 0 a N-1, donde N es la base.</p>
+                    
+                    <h3 style="color: #4ecdc4; margin-top: 30px;">CALCULADORA</h3>
+                    <p>Usa la calculadora para practicar conversiones entre cualquier base numérica.</p>
+                </div>
+            </div>
+            
+            <div class="instructions-footer">
+                <button class="btn" id="instructions-to-menu-btn">VOLVER AL MENÚ</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables del juego
+        let playerName = "";
+        let currentLevel = 1;
+        let medalsEarned = 0;
+        let correctAnswersInLevel = 0;
+        const ANSWERS_NEEDED_PER_LEVEL = 3;
+        
+        // Elementos del DOM
+        const menuScreen = document.getElementById('menu-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const calculatorScreen = document.getElementById('calculator-screen');
+        const instructionsScreen = document.getElementById('instructions-screen');
+        
+        const playerNameInput = document.getElementById('player-name');
+        const currentPlayerDisplay = document.getElementById('current-player');
+        const currentLevelDisplay = document.getElementById('current-level');
+        const medalsContainer = document.getElementById('medals-container');
+        const questionDisplay = document.getElementById('question');
+        const feedbackDisplay = document.getElementById('feedback');
+        const optionsContainer = document.getElementById('options');
+        
+        // Botones
+        document.getElementById('start-game-btn').addEventListener('click', startGame);
+        document.getElementById('calculator-btn').addEventListener('click', showCalculator);
+        document.getElementById('instructions-btn').addEventListener('click', showInstructions);
+        document.getElementById('back-to-menu-btn').addEventListener('click', backToMenu);
+        document.getElementById('calculator-to-menu-btn').addEventListener('click', backToMenu);
+        document.getElementById('instructions-to-menu-btn').addEventListener('click', backToMenu);
+        
+        // Pestañas de la calculadora
+        const calculatorTabs = document.querySelectorAll('.calculator-tab');
+        calculatorTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remover clase active de todas las pestañas
+                calculatorTabs.forEach(t => t.classList.remove('active'));
+                
+                // Añadir clase active a la pestaña clickeada
+                tab.classList.add('active');
+                
+                // Ocultar todos los formularios
+                document.getElementById('base10-to-other-form').style.display = 'none';
+                document.getElementById('other-to-base10-form').style.display = 'none';
+                document.getElementById('any-to-any-form').style.display = 'none';
+                
+                // Mostrar el formulario correspondiente
+                const tabId = tab.getAttribute('data-tab');
+                if (tabId === 'base10-to-other') {
+                    document.getElementById('base10-to-other-form').style.display = 'flex';
+                } else if (tabId === 'other-to-base10') {
+                    document.getElementById('other-to-base10-form').style.display = 'flex';
+                } else if (tabId === 'any-to-any') {
+                    document.getElementById('any-to-any-form').style.display = 'flex';
+                }
+            });
+        });
+        
+        // Conversores de la calculadora
+        document.getElementById('convert-base10-btn').addEventListener('click', convertFromBase10);
+        document.getElementById('convert-to-base10-btn').addEventListener('click', convertToBase10);
+        document.getElementById('convert-any-btn').addEventListener('click', convertAnyToAny);
+        
+        // Funciones del juego
+        function startGame() {
+            playerName = playerNameInput.value.trim() || "Jugador";
+            currentPlayerDisplay.textContent = playerName;
+            
+            // Reiniciar estado del juego
+            currentLevel = 1;
+            medalsEarned = 0;
+            correctAnswersInLevel = 0;
+            updateLevelDisplay();
+            updateMedalsDisplay();
+            
+            // Mostrar pantalla de juego
+            menuScreen.style.display = 'none';
+            gameScreen.style.display = 'flex';
+            calculatorScreen.style.display = 'none';
+            instructionsScreen.style.display = 'none';
+            
+            // Generar primera pregunta
+            generateQuestion();
+        }
+        
+        function showCalculator() {
+            menuScreen.style.display = 'none';
+            gameScreen.style.display = 'none';
+            calculatorScreen.style.display = 'flex';
+            instructionsScreen.style.display = 'none';
+            
+            // Mostrar el primer formulario por defecto
+            document.getElementById('base10-to-other-form').style.display = 'flex';
+        }
+        
+        function showInstructions() {
+            menuScreen.style.display = 'none';
+            gameScreen.style.display = 'none';
+            calculatorScreen.style.display = 'none';
+            instructionsScreen.style.display = 'flex';
+        }
+        
+        function backToMenu() {
+            menuScreen.style.display = 'flex';
+            gameScreen.style.display = 'none';
+            calculatorScreen.style.display = 'none';
+            instructionsScreen.style.display = 'none';
+        }
+        
+        function updateLevelDisplay() {
+            currentLevelDisplay.textContent = currentLevel;
+        }
+        
+        function updateMedalsDisplay() {
+            medalsContainer.innerHTML = '';
+            for (let i = 0; i < medalsEarned; i++) {
+                const medal = document.createElement('div');
+                medal.className = 'medal';
+                medal.textContent = i + 1;
+                medalsContainer.appendChild(medal);
+            }
+        }
+        
+        function generateQuestion() {
+            // Generar un número aleatorio de 2 o 3 cifras
+            const min = currentLevel < 5 ? 10 : 100;
+            const max = currentLevel < 5 ? 99 : 999;
+            const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+            
+            // Seleccionar una base aleatoria (de 2 a 9)
+            const base = Math.floor(Math.random() * 8) + 2;
+            
+            // Calcular la respuesta correcta
+            const correctAnswer = convertBase(randomNumber.toString(), 10, base);
+            
+            // Generar opciones incorrectas
+            const options = [correctAnswer];
+            while (options.length < 4) {
+                let wrongAnswer;
+                if (Math.random() > 0.5) {
+                    // Generar una respuesta incorrecta cercana
+                    const offset = Math.floor(Math.random() * 3) + 1;
+                    wrongAnswer = convertBase((randomNumber + offset).toString(), 10, base);
+                } else {
+                    // Generar una respuesta aleatoria
+                    const wrongNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+                    wrongAnswer = convertBase(wrongNumber.toString(), 10, base);
+                }
+                
+                if (!options.includes(wrongAnswer)) {
+                    options.push(wrongAnswer);
+                }
+            }
+            
+            // Mezclar las opciones
+            options.sort(() => Math.random() - 0.5);
+            
+            // Mostrar la pregunta y las opciones
+            questionDisplay.textContent = `Convierte ${randomNumber} (base 10) a base ${base}:`;
+            
+            optionsContainer.innerHTML = '';
+            options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.textContent = option;
+                button.addEventListener('click', () => checkAnswer(option, correctAnswer));
+                optionsContainer.appendChild(button);
+            });
+            
+            feedbackDisplay.textContent = '';
+            feedbackDisplay.className = 'feedback';
+        }
+        
+        function checkAnswer(selectedAnswer, correctAnswer) {
+            if (selectedAnswer === correctAnswer) {
+                feedbackDisplay.textContent = '¡Correcto!';
+                feedbackDisplay.className = 'feedback correct';
+                correctAnswersInLevel++;
+                
+                if (correctAnswersInLevel >= ANSWERS_NEEDED_PER_LEVEL) {
+                    // Avanzar de nivel
+                    currentLevel++;
+                    correctAnswersInLevel = 0;
+                    
+                    // Otorgar medalla cada 3 niveles
+                    if ((currentLevel - 1) % 3 === 0) {
+                        medalsEarned++;
+                        updateMedalsDisplay();
+                    }
+                    
+                    updateLevelDisplay();
+                }
+                
+                // Generar nueva pregunta después de un breve retraso
+                setTimeout(generateQuestion, 1000);
+            } else {
+                feedbackDisplay.textContent = `Incorrecto. La respuesta correcta es ${correctAnswer}`;
+                feedbackDisplay.className = 'feedback incorrect';
+                
+                // Volver a generar la misma pregunta después de un breve retraso
+                setTimeout(generateQuestion, 1500);
+            }
+        }
+        
+        // Funciones de conversión de bases
+        function convertFromBase10() {
+            const number = document.getElementById('base10-number').value.trim();
+            const targetBase = parseInt(document.getElementById('target-base').value);
+            
+            if (!number || isNaN(number) || parseInt(number) < 0) {
+                document.getElementById('base10-result').textContent = 'Ingresa un número válido en base 10';
+                return;
+            }
+            
+            const result = convertBase(number, 10, targetBase);
+            document.getElementById('base10-result').textContent = 
+                `${number} en base 10 = ${result} en base ${targetBase}`;
+        }
+        
+        function convertToBase10() {
+            const number = document.getElementById('other-base-number').value.trim().toUpperCase();
+            const originalBase = parseInt(document.getElementById('original-base').value);
+            
+            if (!number || !isValidNumberForBase(number, originalBase)) {
+                document.getElementById('to-base10-result').textContent = 
+                    `Ingresa un número válido en base ${originalBase}`;
+                return;
+            }
+            
+            const result = convertBase(number, originalBase, 10);
+            document.getElementById('to-base10-result').textContent = 
+                `${number} en base ${originalBase} = ${result} en base 10`;
+        }
+        
+        function convertAnyToAny() {
+            const number = document.getElementById('any-base-number').value.trim().toUpperCase();
+            const fromBase = parseInt(document.getElementById('from-base').value);
+            const toBase = parseInt(document.getElementById('to-base').value);
+            
+            if (!number || !isValidNumberForBase(number, fromBase)) {
+                document.getElementById('any-to-any-result').textContent = 
+                    `Ingresa un número válido en base ${fromBase}`;
+                return;
+            }
+            
+            const result = convertBase(number, fromBase, toBase);
+            document.getElementById('any-to-any-result').textContent = 
+                `${number} en base ${fromBase} = ${result} en base ${toBase}`;
+        }
+        
+        function isValidNumberForBase(number, base) {
+            const validDigits = '0123456789ABCDEF'.substring(0, base);
+            return [...number].every(digit => validDigits.includes(digit));
+        }
+        
+        function convertBase(number, fromBase, toBase) {
+            // Primero convertir a base 10
+            let base10 = parseInt(number, fromBase);
+            
+            // Luego convertir a la base deseada
+            if (toBase === 10) return base10.toString();
+            
+            const digits = [];
+            while (base10 > 0) {
+                const remainder = base10 % toBase;
+                digits.push(remainder < 10 ? remainder.toString() : String.fromCharCode(55 + remainder));
+                base10 = Math.floor(base10 / toBase);
+            }
+            
+            return digits.reverse().join('') || '0';
+        }
+    </script>
+</body>
+</html>
